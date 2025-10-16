@@ -1,16 +1,16 @@
 package no.gjensidige.product.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.math.BigInteger;
 
 /**
- *  Product entity class.
+ * Product entity class.
  *
- *  This class is used for storing Products to the database.
+ * This class is used for storing Products to the database.
  */
 
 @Entity
-@Table(name="product")
+@Table(name = "product")
 public class Product {
 
     @Id
@@ -22,7 +22,6 @@ public class Product {
     Double unitCost;
     Double unitPrice;
     BigInteger numberSold;
-
 
     public String getProductName() {
         return productName;

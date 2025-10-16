@@ -43,10 +43,9 @@ public class ProductController {
     @PutMapping(value = "/{id}")
     Product updateProduct(@PathVariable("id") Long id, @RequestBody ProductDTO inputProduct) {
 
-        throw new UnsupportedOperationException();
+        return productService.updateProduct(id, inputProduct);
 
     }
-
 
     @DeleteMapping(value = "/{id}")
     Product deleteProduct(@PathVariable("id") Long id) {

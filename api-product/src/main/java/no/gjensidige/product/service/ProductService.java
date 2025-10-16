@@ -1,14 +1,15 @@
 package no.gjensidige.product.service;
 
-import no.gjensidige.product.dto.ProductDTO;
-import no.gjensidige.product.exception.ProductNotFoundException;
-import no.gjensidige.product.entity.Product;
-import no.gjensidige.product.repository.ProductRepository;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import no.gjensidige.product.dto.ProductDTO;
+import no.gjensidige.product.entity.Product;
+import no.gjensidige.product.exception.ProductNotFoundException;
+import no.gjensidige.product.repository.ProductRepository;
 
 /**
  * ProductService
@@ -38,15 +39,15 @@ public class ProductService {
 
     }
 
-    //@Todo create delete functionality
+    // @Todo create delete functionality
     public Product deleteProduct(Long id) {
 
-        Product p  = new Product();
+        Product existingProduct = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
 
+        productRepository.delete(existingProduct);
 
-        return p;
+        return existingProduct;
     }
-
 
     public Product createProduct(ProductDTO inputProduct) {
 
@@ -55,14 +56,16 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    //@Todo create update functionality
+    // @Todo create update functionality
     public Product updateProduct(Long id, ProductDTO inputProduct) {
 
+        Product existingProduct = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
 
+        // SkipNullEnabled in ProductApp.java, so mapper skips null entries in DTO
+        modelMapper.map(inputProduct, existingProduct);
 
-        throw new UnsupportedOperationException();
+        return productRepository.save(existingProduct);
     }
-
 
     public ProductDTO convertToDTO(Product product) {
 
@@ -75,8 +78,6 @@ public class ProductService {
         Product product = modelMapper.map(productDTO, Product.class);
 
         return product;
-
     }
-
 
 }

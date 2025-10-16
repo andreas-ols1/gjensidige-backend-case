@@ -14,7 +14,10 @@ public class ProductApp {
 
     @Bean
     public ModelMapper modelMapper() {
-        return new ModelMapper();
+        ModelMapper mm = new ModelMapper();
+        // Skip null fields when mapping objects using ModelMapper
+        mm.getConfiguration().setSkipNullEnabled(true);
+        return mm;
     }
 
 }

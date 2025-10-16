@@ -4,10 +4,9 @@ import no.gjensidige.product.dto.ProductDTO;
 import no.gjensidige.product.entity.Product;
 import no.gjensidige.product.exception.ProductNotFoundException;
 import no.gjensidige.product.repository.ProductRepository;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -16,7 +15,7 @@ import org.modelmapper.ModelMapper;
 import java.math.BigInteger;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
@@ -35,7 +34,7 @@ public class ProductServiceTest {
     @Mock
     ModelMapper modelMapper;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
     }
@@ -45,13 +44,11 @@ public class ProductServiceTest {
 
         Set<String> uniqueNames = new HashSet<>(Arrays.asList("Larry", "Steve", "James"));
         List<Product> productList = new ArrayList<>();
-        uniqueNames.forEach(name ->
-        {
+        uniqueNames.forEach(name -> {
             Product p = new Product();
             p.setProductName(name);
             productList.add(p);
         });
-
 
         when(productRepository.findAll()).thenReturn(productList);
 
@@ -69,12 +66,11 @@ public class ProductServiceTest {
         p.setId(1L);
         Optional<Product> op = Optional.of(p);
 
-
         when(productRepository.findById(anyLong())).thenReturn(op);
 
         Product product = productService.getProduct(1l);
 
-        assertEquals(p,product);
+        assertEquals(p, product);
     }
 
     @Test
@@ -87,20 +83,19 @@ public class ProductServiceTest {
         Product product = productService.deleteProduct(1l);
         verify(productRepository).delete(p);
 
-        assertEquals(p,product);
+        assertEquals(p, product);
     }
 
-
-    @Test(expected = ProductNotFoundException.class)
+    @Test
     public void deleteProductWithException() {
         Optional<Product> op = Optional.empty();
 
         when(productRepository.findById(anyLong())).thenReturn(op);
 
-        Product product = productService.deleteProduct(10l);
+        // JUnit 5 style of ExpectedException
+        assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(10l));
 
         verify(productRepository).findById(10l);
-        fail("Didn't throw not found exception");
     }
 
     @Test
@@ -111,7 +106,7 @@ public class ProductServiceTest {
         product.setNumberSold(BigInteger.valueOf(200));
         product.setUnitPrice(55.50);
 
-        when(modelMapper.map(product, ProductDTO.class)).thenReturn(mm.map(product,ProductDTO.class));
+        when(modelMapper.map(product, ProductDTO.class)).thenReturn(mm.map(product, ProductDTO.class));
         ProductDTO productDTO = productService.convertToDTO(product);
     }
 
@@ -124,12 +119,12 @@ public class ProductServiceTest {
         productDTO.setNumbersold(BigInteger.valueOf(200));
         productDTO.setPrice(55.50);
 
-        when(modelMapper.map(productDTO,Product.class)).thenReturn(mm.map(productDTO,Product.class));
+        when(modelMapper.map(productDTO, Product.class)).thenReturn(mm.map(productDTO, Product.class));
         Product product = productService.convertToEntity(productDTO);
 
-        assertEquals(product.getProductName(),productDTO.getProductName());
-        assertEquals(product.getNumberSold(),productDTO.getNumberSold());
-        assertEquals(product.getCategory(),productDTO.getCategory());
+        assertEquals(product.getProductName(), productDTO.getProductName());
+        assertEquals(product.getNumberSold(), productDTO.getNumberSold());
+        assertEquals(product.getCategory(), productDTO.getCategory());
 
     }
 }

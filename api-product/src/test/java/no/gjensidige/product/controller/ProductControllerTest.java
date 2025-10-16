@@ -2,29 +2,27 @@ package no.gjensidige.product.controller;
 
 import no.gjensidige.product.entity.Product;
 import no.gjensidige.product.service.ProductService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 
 public class ProductControllerTest {
 
     @InjectMocks
     private ProductController productController;
 
-
     @Mock
     private ProductService productService;
 
-    @Before
+    @BeforeEach
     public void init() {
         MockitoAnnotations.initMocks(this);
     }
@@ -33,13 +31,11 @@ public class ProductControllerTest {
     public void getProducts() {
         Set<String> uniqueNames = new HashSet<>(Arrays.asList("Larry", "Steve", "James"));
         List<Product> productList = new ArrayList<>();
-        uniqueNames.forEach(name ->
-        {
+        uniqueNames.forEach(name -> {
             Product p = new Product();
             p.setProductName(name);
             productList.add(p);
         });
-
 
         when(productService.getAllProducts()).thenReturn(productList);
 
