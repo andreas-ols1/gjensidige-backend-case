@@ -50,7 +50,6 @@ public class ProductServiceTest {
 
     @Test
     public void getAllProducts() {
-        // Arrange
         Set<String> uniqueNames = new HashSet<>(Arrays.asList("Larry", "Steve", "James"));
         List<Product> productList = new ArrayList<>();
         uniqueNames.forEach(name -> {
@@ -62,10 +61,8 @@ public class ProductServiceTest {
 
         when(productRepository.findAll()).thenReturn(productList);
 
-        // Act
         List<ProductDTO> result = productService.getAllProducts();
 
-        // Assert
         verify(productRepository).findAll();
         assertEquals(3, result.size());
         assertEquals(productList.get(0).getProductName(), result.get(0).getProductName());
@@ -74,7 +71,6 @@ public class ProductServiceTest {
 
     @Test
     public void getProduct() {
-        // Arrange
         Product p = new Product();
         p.setId(1L);
         p.setProductName("Test Product");
@@ -83,10 +79,8 @@ public class ProductServiceTest {
 
         when(productRepository.findById(anyLong())).thenReturn(op);
 
-        // Act
         ProductDTO result = productService.getProduct(1L);
 
-        // Assert
         assertNotNull(result);
         assertEquals("Test Product", result.getProductName());
         assertEquals(99.99, result.getUnitPrice());
@@ -94,7 +88,6 @@ public class ProductServiceTest {
 
     @Test
     public void deleteProduct() {
-        // Arrange
         Product p = new Product();
         p.setId(1L);
         p.setProductName("To Delete");
@@ -102,11 +95,8 @@ public class ProductServiceTest {
         Optional<Product> op = Optional.of(p);
 
         when(productRepository.findById(anyLong())).thenReturn(op);
-
-        // Act
         ProductDTO result = productService.deleteProduct(1L);
 
-        // Assert
         verify(productRepository).delete(p);
         assertNotNull(result);
         assertEquals("To Delete", result.getProductName());
@@ -115,10 +105,8 @@ public class ProductServiceTest {
     @Test
     public void deleteProductWithException() {
         Optional<Product> op = Optional.empty();
-
         when(productRepository.findById(anyLong())).thenReturn(op);
 
-        // JUnit 5 style of ExpectedException
         assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(10l));
 
         verify(productRepository).findById(10l);
