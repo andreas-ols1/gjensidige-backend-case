@@ -5,7 +5,6 @@ import no.gjensidige.product.entity.Product;
 import no.gjensidige.product.exception.ProductNotFoundException;
 import no.gjensidige.product.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -36,54 +35,81 @@ public class ProductServiceTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
+
+        when(modelMapper.map(any(Product.class), any())).thenAnswer(invocation -> {
+            Product product = invocation.getArgument(0);
+            return mm.map(product, invocation.getArgument(1));
+        });
+
+        when(modelMapper.map(any(ProductDTO.class), any())).thenAnswer(invocation -> {
+            ProductDTO dto = invocation.getArgument(0);
+            return mm.map(dto, invocation.getArgument(1));
+        });
     }
 
     @Test
     public void getAllProducts() {
-
+        // Arrange
         Set<String> uniqueNames = new HashSet<>(Arrays.asList("Larry", "Steve", "James"));
         List<Product> productList = new ArrayList<>();
         uniqueNames.forEach(name -> {
             Product p = new Product();
             p.setProductName(name);
+            p.setUnitPrice(100.0);
             productList.add(p);
         });
 
         when(productRepository.findAll()).thenReturn(productList);
 
-        List<Product> productList1 = productService.getAllProducts();
+        // Act
+        List<ProductDTO> result = productService.getAllProducts();
 
+        // Assert
         verify(productRepository).findAll();
-
-        assertEquals(3, productList1.size());
+        assertEquals(3, result.size());
+        assertEquals(productList.get(0).getProductName(), result.get(0).getProductName());
 
     }
 
     @Test
     public void getProduct() {
+        // Arrange
         Product p = new Product();
         p.setId(1L);
+        p.setProductName("Test Product");
+        p.setUnitPrice(99.99);
         Optional<Product> op = Optional.of(p);
 
         when(productRepository.findById(anyLong())).thenReturn(op);
 
-        Product product = productService.getProduct(1l);
+        // Act
+        ProductDTO result = productService.getProduct(1L);
 
-        assertEquals(p, product);
+        // Assert
+        assertNotNull(result);
+        assertEquals("Test Product", result.getProductName());
+        assertEquals(99.99, result.getUnitPrice());
     }
 
     @Test
     public void deleteProduct() {
+        // Arrange
         Product p = new Product();
         p.setId(1L);
+        p.setProductName("To Delete");
+        p.setUnitPrice(50.0);
         Optional<Product> op = Optional.of(p);
+
         when(productRepository.findById(anyLong())).thenReturn(op);
 
-        Product product = productService.deleteProduct(1l);
-        verify(productRepository).delete(p);
+        // Act
+        ProductDTO result = productService.deleteProduct(1L);
 
-        assertEquals(p, product);
+        // Assert
+        verify(productRepository).delete(p);
+        assertNotNull(result);
+        assertEquals("To Delete", result.getProductName());
     }
 
     @Test
@@ -106,8 +132,11 @@ public class ProductServiceTest {
         product.setNumberSold(BigInteger.valueOf(200));
         product.setUnitPrice(55.50);
 
-        when(modelMapper.map(product, ProductDTO.class)).thenReturn(mm.map(product, ProductDTO.class));
         ProductDTO productDTO = productService.convertToDTO(product);
+
+        assertNotNull(productDTO);
+        assertEquals("Seagate Baracuda 500GB", productDTO.getProductName());
+        assertEquals(55.50, productDTO.getUnitPrice());
     }
 
     @Test
@@ -116,10 +145,9 @@ public class ProductServiceTest {
         ProductDTO productDTO = new ProductDTO();
         productDTO.setCategory("Hardware");
         productDTO.setProductName("Seagate Baracuda 500GB");
-        productDTO.setNumbersold(BigInteger.valueOf(200));
-        productDTO.setPrice(55.50);
+        productDTO.setNumberSold(BigInteger.valueOf(200));
+        productDTO.setUnitPrice(55.50);
 
-        when(modelMapper.map(productDTO, Product.class)).thenReturn(mm.map(productDTO, Product.class));
         Product product = productService.convertToEntity(productDTO);
 
         assertEquals(product.getProductName(), productDTO.getProductName());

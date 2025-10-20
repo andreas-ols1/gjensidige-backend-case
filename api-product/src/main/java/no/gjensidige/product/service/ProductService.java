@@ -3,7 +3,6 @@ package no.gjensidige.product.service;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import no.gjensidige.product.dto.ProductDTO;
@@ -22,49 +21,59 @@ import no.gjensidige.product.repository.ProductRepository;
 @Service
 public class ProductService {
 
-    @Autowired
-    ProductRepository productRepository;
+    // Changed from Autowired to constructor injection
+    private final ProductRepository productRepository;
 
-    @Autowired
-    ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    public List<Product> getAllProducts() {
-
-        return productRepository.findAll();
+    public ProductService(ProductRepository pr, ModelMapper mm) {
+        this.productRepository = pr;
+        this.modelMapper = mm;
     }
 
-    public Product getProduct(Long id) {
+    public List<ProductDTO> getAllProducts() {
 
-        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+        return productRepository.findAll().stream().map(this::convertToDTO).toList();
+    }
+
+    public ProductDTO getProduct(Long id) {
+
+        Product p = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+
+        return convertToDTO(p);
 
     }
 
     // @Todo create delete functionality
-    public Product deleteProduct(Long id) {
+    public ProductDTO deleteProduct(Long id) {
 
         Product existingProduct = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
 
         productRepository.delete(existingProduct);
 
-        return existingProduct;
+        return convertToDTO(existingProduct);
     }
 
-    public Product createProduct(ProductDTO inputProduct) {
+    public ProductDTO createProduct(ProductDTO inputProduct) {
 
         Product product = convertToEntity(inputProduct);
 
-        return productRepository.save(product);
+        product = productRepository.save(product);
+
+        return convertToDTO(product);
     }
 
     // @Todo create update functionality
-    public Product updateProduct(Long id, ProductDTO inputProduct) {
+    public ProductDTO updateProduct(Long id, ProductDTO inputProduct) {
 
         Product existingProduct = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
 
         // SkipNullEnabled in ProductApp.java, so mapper skips null entries in DTO
         modelMapper.map(inputProduct, existingProduct);
 
-        return productRepository.save(existingProduct);
+        existingProduct = productRepository.save(existingProduct);
+
+        return convertToDTO(existingProduct);
     }
 
     public ProductDTO convertToDTO(Product product) {

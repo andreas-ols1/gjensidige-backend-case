@@ -1,11 +1,12 @@
 package no.gjensidige.product.controller;
 
 import no.gjensidige.product.dto.ProductDTO;
-import no.gjensidige.product.entity.Product;
 import no.gjensidige.product.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.http.ResponseEntity;
 
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -15,41 +16,48 @@ import java.util.List;
  */
 
 @RestController
-@RequestMapping(name = "Products", value = "products")
+@RequestMapping("/products")
 public class ProductController {
 
-    @Autowired
-    ProductService productService;
+    private final ProductService productService;
 
-    @GetMapping(value = "/")
-    List<Product> getProducts() {
+    public ProductController(ProductService ps) {
+        this.productService = ps;
+    }
 
-        return productService.getAllProducts();
+    @GetMapping
+    ResponseEntity<List<ProductDTO>> getProducts() {
+
+        return ResponseEntity.ok(productService.getAllProducts());
     }
 
     @GetMapping(value = "/{id}")
-    Product getProduct(@PathVariable("id") Long id) {
+    ResponseEntity<ProductDTO> getProduct(@PathVariable("id") Long id) {
 
-        return productService.getProduct(id);
+        return ResponseEntity.ok(productService.getProduct(id));
     }
 
-    @PostMapping(value = "/")
-    Product createProduct(@RequestBody ProductDTO inputProduct) {
+    @PostMapping
+    ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO inputProduct) {
 
-        return productService.createProduct(inputProduct);
+        ProductDTO createdProduct = productService.createProduct(inputProduct);
 
+        URI createdLocation = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(createdProduct.getId()).toUri();
+
+        return ResponseEntity.created(createdLocation).body(createdProduct);
     }
 
     @PutMapping(value = "/{id}")
-    Product updateProduct(@PathVariable("id") Long id, @RequestBody ProductDTO inputProduct) {
+    ResponseEntity<ProductDTO> updateProduct(@PathVariable("id") Long id, @RequestBody ProductDTO inputProduct) {
 
-        return productService.updateProduct(id, inputProduct);
+        return ResponseEntity.ok(productService.updateProduct(id, inputProduct));
 
     }
 
     @DeleteMapping(value = "/{id}")
-    Product deleteProduct(@PathVariable("id") Long id) {
+    ResponseEntity<ProductDTO> deleteProduct(@PathVariable("id") Long id) {
 
-        return productService.deleteProduct(id);
+        return ResponseEntity.ok(productService.deleteProduct(id));
     }
 }

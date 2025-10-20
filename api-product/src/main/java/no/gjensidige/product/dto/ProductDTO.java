@@ -9,13 +9,13 @@ import java.math.BigInteger;
  */
 public class ProductDTO {
 
-    Long id;
-    String productName;
-    String category;
-    String imageLink;
-    Double unitCost;
-    Double unitPrice;
-    BigInteger numberSold;
+    private Long id;
+    private String productName;
+    private String category;
+    private String imageLink;
+    private Double unitCost;
+    private Double unitPrice;
+    private BigInteger numberSold;
 
     public Long getId() {
         return id;
@@ -61,7 +61,7 @@ public class ProductDTO {
         return unitPrice;
     }
 
-    public void setPrice(Double unitPrice) {
+    public void setUnitPrice(Double unitPrice) {
         this.unitPrice = unitPrice;
     }
 
@@ -69,7 +69,7 @@ public class ProductDTO {
         return numberSold;
     }
 
-    public void setNumbersold(BigInteger numberSold) {
+    public void setNumberSold(BigInteger numberSold) {
         this.numberSold = numberSold;
     }
 }

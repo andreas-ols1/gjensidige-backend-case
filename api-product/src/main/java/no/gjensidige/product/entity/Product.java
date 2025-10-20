@@ -15,13 +15,13 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-    String productName;
-    String category;
-    String imageLink;
-    Double unitCost;
-    Double unitPrice;
-    BigInteger numberSold;
+    private Long id;
+    private String productName;
+    private String category;
+    private String imageLink;
+    private Double unitCost;
+    private Double unitPrice;
+    private BigInteger numberSold;
 
     public String getProductName() {
         return productName;
